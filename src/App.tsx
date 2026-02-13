@@ -50,7 +50,7 @@ function App() {
           method: 'GET',
           url: 'https://jsearch.p.rapidapi.com/search',
           params: {
-            query: 'Software developer in USA',
+            query: 'Software developer in Singapore',
             num_pages: '1'
           },
           headers: {

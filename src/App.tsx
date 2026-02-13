@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import mammoth from 'mammoth';
+import * as pdfjs from 'pdfjs-dist';
 import {
   Container,
   CssBaseline,
@@ -15,6 +16,9 @@ import ResumeUpload from "./components/ResumeUpload";
 import JobList from "./components/JobList";
 import JobCard from "./components/JobCard";
 import ResumeSuggestions from './components/ResumeSuggestions';
+
+// Set up the worker for pdfjs-dist
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const theme = createTheme({
   palette: {
@@ -35,6 +39,14 @@ interface Job {
   url: string;
   keywords: string[];
   match?: number;
+}
+
+interface ApiJob {
+  job_id: string;
+  job_title: string;
+  employer_name: string;
+  job_description: string;
+  job_apply_link: string;
 }
 
 function App() {
@@ -62,7 +74,7 @@ function App() {
         };
 
         const response = await axios.request(options);
-        const fetchedJobs = response.data.data.map((apiJob: any) => {
+        const fetchedJobs = response.data.data.map((apiJob: ApiJob) => {
             const jobText = (apiJob.job_title + ' ' + apiJob.job_description).toLowerCase();
             const keywords = [...new Set(jobText.match(/\b(\w+)\b/g) || [])].slice(0, 30);
 
@@ -114,8 +126,26 @@ function App() {
                 processResume(resumeText);
             };
             reader.readAsText(file);
+        } else if (file.name.endsWith('.pdf')) {
+            reader.onload = async (e) => {
+                try {
+                    const arrayBuffer = e.target?.result as ArrayBuffer;
+                    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+                    let resumeText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        resumeText += textContent.items.map(item => (item as any).str).join(' ');
+                    }
+                    processResume(resumeText);
+                } catch (err) {
+                    console.error("Error parsing .pdf file:", err);
+                    setResumeError("Error parsing .pdf file. Please try again.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
         } else {
-            setResumeError("Unsupported file type. Please upload a .txt or .docx file.");
+            setResumeError("Unsupported file type. Please upload a .txt, .docx, or .pdf file.");
         }
     }
   };

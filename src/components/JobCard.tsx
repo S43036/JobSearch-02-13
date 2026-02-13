@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Card,
-  CardContent,
   Typography,
   Button,
   CardActions,
@@ -24,7 +23,7 @@ const JobCard: React.FC<JobCardProps> = ({ title, company, description, match, u
   return (
     <Card sx={{ mb: 3, p: 2, boxShadow: 3, borderRadius: 2 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <Typography variant="h5" component="div" gutterBottom>
             {title}
           </Typography>
@@ -35,7 +34,7 @@ const JobCard: React.FC<JobCardProps> = ({ title, company, description, match, u
             {description}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Grid xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6">Match Score</Typography>
             <Chip label={`${match}%`} color={matchColor} sx={{ mt: 1, fontSize: '1.1rem' }} />

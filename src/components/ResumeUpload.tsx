@@ -12,7 +12,7 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({ onUpload }) => {
         Upload Your Resume
       </Typography>
       <input
-        accept=".txt,.docx"
+        accept=".txt,.docx,.pdf"
         style={{ display: 'none' }}
         id="resume-upload"
         type="file"

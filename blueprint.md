@@ -1,44 +1,29 @@
-# Project Blueprint: AI-Powered Job Matching App
+# Project Blueprint
 
 ## Overview
 
-An interactive web application to help PMET job seekers in Singapore find relevant job opportunities based on their resumes. The application will analyze an uploaded resume, match it against a list of job openings, and provide a percentage match score. It will also offer links to the job portals for application.
+This project is a React application built with Vite. The goal is to create a job board application that allows users to upload their resume, see a list of relevant jobs, and get suggestions for improving their resume.
 
-## Implemented Features (v1.0)
+## Current State & History
 
-This is the initial version of the application. The following features are planned for the first iteration.
+*   **Initial Setup:** The project was initialized with a React + Vite template.
+*   **Node.js Version Issue:** Encountered an error where the Node.js version was incompatible with the installed Vite version.
+    *   **Action Taken:** Modified `.idx/dev.nix` to switch from the `stable-24.05` to the `unstable` channel to get a newer Node.js version.
+    *   **Action Taken:** Downgraded `vite` and `@vitejs/plugin-react` in `package.json` to versions compatible with the environment's Node.js.
+    *   **Action Taken:** Ran `npm install` to apply the package version changes.
+*   **Firebase Initialization Issue:** The `firebase-debug.log` revealed errors related to a missing `WORKSPACE_SLUG`, suggesting a problem with the Firebase project connection.
+    *   **Action Taken:** Re-initialized Firebase Hosting using `firebase_init`, which created a `firebase.json` file.
+*   **Missing Environment Variable:** The application was failing to start silently due to a missing `.env` file that should contain the RapidAPI key.
+    *   **Action Taken:** Created a `.env` file with a placeholder for the `VITE_RAPIDAPI_KEY`.
+*   **Successful Start:** The `npm run dev` command now successfully starts the Vite development server.
 
-### Core Functionality
+## Plan for Next Steps
 
-*   **Resume Upload:** Users can upload their resume as a plain text file.
-*   **Job Matching:** The application will parse the resume for keywords and match them against a predefined list of job opportunities.
-*   **Job Listings:** Matched jobs will be displayed with details, including title, company, a short description, and a matching score.
-*   **Apply Link:** Each job listing will have a link to an external job portal for the user to apply.
+Now that the application is running, the next steps will be focused on improving the user interface and adding new features. The user has been presented with the following options:
 
-### Tech Stack
+*   **Improve the UI/UX:** Enhance the visual design of the application.
+*   **Add a search bar:** Implement a search functionality to filter jobs.
+*   **Create a job details page:** Add a new page to display detailed information about each job.
+*   **Implement a "favorites" feature:** Allow users to save jobs.
 
-*   **Frontend:** React, TypeScript, Vite
-*   **UI Library:** Material-UI (MUI) for a clean and modern user interface.
-*   **Styling:** CSS-in-JS with Emotion (comes with MUI).
-*   **State Management:** React Hooks (`useState`, `useContext`).
-
-### Design & Aesthetics
-
-*   **Layout:** A clean, single-page layout with clear sections for resume upload and job listings.
-*   **Color Scheme:** A professional and modern color palette.
-*   **Typography:** Clear and readable fonts.
-*   **Iconography:** Icons from MUI's library to enhance user experience.
-
-## Current Plan: Initial Setup and UI
-
-1.  **Acknowledge Contradiction:** Address the user's "no React" request and explain the decision to proceed with the existing React environment.
-2.  **Project Cleanup:** Remove the default boilerplate code and styles.
-3.  **Install Dependencies:** Add Material-UI to the project.
-4.  **Create Component Structure:**
-    *   `src/App.tsx`: Main application component.
-    *   `src/components/Header.tsx`: Header component.
-    *   `src/components/ResumeUpload.tsx`: Component for handling file uploads.
-    *   `src/components/JobList.tsx`: Component to display job listings.
-    *   `src/components/JobCard.tsx`: Component for a single job item.
-5.  **Create Mock Job Data:** Create a `jobs.json` file with sample job data for Singapore PMET roles.
-6.  **Implement Basic UI:** Build the static UI for the application using MUI components without any logic first.
+I am waiting for the user to decide on the next feature to implement.

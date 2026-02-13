@@ -4,8 +4,6 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemIcon,
-  ListItemText,
   Chip
 } from '@mui/material';
 import { LightbulbOutlined as LightbulbIcon } from '@mui/icons-material';

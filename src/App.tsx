@@ -14,6 +14,7 @@ import Header from "./components/Header";
 import ResumeUpload from "./components/ResumeUpload";
 import JobList from "./components/JobList";
 import JobCard from "./components/JobCard";
+import ResumeSuggestions from './components/ResumeSuggestions';
 
 const theme = createTheme({
   palette: {
@@ -42,6 +43,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
+  const [resumeSuggestions, setResumeSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -123,7 +125,9 @@ function App() {
         const matchPercentage = calculateMatch(resumeText, job.keywords);
         return { ...job, match: matchPercentage };
     });
-    setMatchedJobs(newMatchedJobs.sort((a, b) => (b.match ?? 0) - (a.match ?? 0)));
+    const sortedJobs = newMatchedJobs.sort((a, b) => (b.match ?? 0) - (a.match ?? 0));
+    setMatchedJobs(sortedJobs);
+    generateResumeSuggestions(resumeText, sortedJobs.slice(0, 10));
   }
 
   const calculateMatch = (resume: string, keywords: string[]): number => {
@@ -137,6 +141,19 @@ function App() {
     return keywords.length > 0 ? Math.round((matchCount / keywords.length) * 100) : 0;
   };
 
+  const generateResumeSuggestions = (resume: string, topJobs: Job[]) => {
+    const resumeWords = new Set(resume.toLowerCase().split(/\s+/));
+    const suggestions = new Set<string>();
+    topJobs.forEach(job => {
+      job.keywords.forEach(keyword => {
+        if (!resumeWords.has(keyword)) {
+          suggestions.add(keyword);
+        }
+      });
+    });
+    setResumeSuggestions(Array.from(suggestions).slice(0, 10));
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -144,11 +161,12 @@ function App() {
       <Container sx={{ mt: 4 }}>
         <ResumeUpload onUpload={handleResumeUpload} />
         {resumeError && <Typography color="error" align="center" sx={{ my: 2 }}>{resumeError}</Typography>}
+        {matchedJobs.length > 0 && <ResumeSuggestions suggestions={resumeSuggestions} />}
         <JobList />
         {loading && <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>}
         {error && <Typography color="error" align="center" sx={{ my: 4 }}>{error}</Typography>}
         {!loading && !error && (
-            (matchedJobs.length > 0 ? matchedJobs : jobs).map((job) => (
+            (matchedJobs.length > 0 ? matchedJobs.slice(0, 10) : jobs).map((job) => (
             <JobCard
                 key={job.id}
                 title={job.title}

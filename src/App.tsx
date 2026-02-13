@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import mammoth from 'mammoth';
 import {
   Container,
   CssBaseline,
@@ -40,6 +41,7 @@ function App() {
   const [matchedJobs, setMatchedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -88,18 +90,41 @@ function App() {
   const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const resumeText = e.target?.result as string;
-        const newMatchedJobs = jobs.map(job => {
-          const matchPercentage = calculateMatch(resumeText, job.keywords);
-          return { ...job, match: matchPercentage };
-        });
-        setMatchedJobs(newMatchedJobs.sort((a, b) => (b.match ?? 0) - (a.match ?? 0)));
-      };
-      reader.readAsText(file);
+        setResumeError(null);
+        const reader = new FileReader();
+
+        if (file.name.endsWith('.docx')) {
+            reader.onload = async (e) => {
+                try {
+                    const arrayBuffer = e.target?.result as ArrayBuffer;
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    const resumeText = result.value;
+                    processResume(resumeText);
+                } catch (err) {
+                    console.error("Error parsing .docx file:", err);
+                    setResumeError("Error parsing .docx file. Please try again.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else if (file.name.endsWith('.txt')) {
+            reader.onload = (e) => {
+                const resumeText = e.target?.result as string;
+                processResume(resumeText);
+            };
+            reader.readAsText(file);
+        } else {
+            setResumeError("Unsupported file type. Please upload a .txt or .docx file.");
+        }
     }
   };
+
+  const processResume = (resumeText: string) => {
+    const newMatchedJobs = jobs.map(job => {
+        const matchPercentage = calculateMatch(resumeText, job.keywords);
+        return { ...job, match: matchPercentage };
+    });
+    setMatchedJobs(newMatchedJobs.sort((a, b) => (b.match ?? 0) - (a.match ?? 0)));
+  }
 
   const calculateMatch = (resume: string, keywords: string[]): number => {
     const resumeWords = resume.toLowerCase().split(/\s+/);
@@ -118,6 +143,7 @@ function App() {
       <Header />
       <Container sx={{ mt: 4 }}>
         <ResumeUpload onUpload={handleResumeUpload} />
+        {resumeError && <Typography color="error" align="center" sx={{ my: 2 }}>{resumeError}</Typography>}
         <JobList />
         {loading && <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress /></Box>}
         {error && <Typography color="error" align="center" sx={{ my: 4 }}>{error}</Typography>}
